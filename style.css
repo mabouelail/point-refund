@@ -4,21 +4,30 @@
 
 html,
 body {
-margin: 0;
-padding: 0;
-width: 460px;
-min-height: 0;
-height: auto;
-overflow: visible;
-font-family: Arial, sans-serif;
-background: #f5f6f8;
-color: #202124;
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    box-sizing: border-box;
 }
 
 .container {
-width: 460px;
-padding: 14px 16px;
-overflow: visible;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+
+    width: 430px !important;
+    max-width: calc(100vw - 40px) !important;
+
+    margin: 0 !important;
+    box-sizing: border-box;
 }
 
 .header {
