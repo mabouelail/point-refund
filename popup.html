@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Point Refund</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Point Refund</h1>
+        <p>Generate internal ticket comment</p>
+    </div>
+
+    <!-- Points Lost -->
+    <section>
+        <label>Points lost?</label>
+        <div class="options two">
+            <button class="option selected" data-group="pointsLost" data-value="Yes">Yes</button>
+            <button class="option" data-group="pointsLost" data-value="No">No</button>
+        </div>
+    </section>
+
+    <!-- Duplicate Ticket -->
+    <section>
+        <label>Duplicate ticket?</label>
+        <div class="options two">
+            <button class="option selected" data-group="duplicateTicket" data-value="Yes">Yes</button>
+            <button class="option" data-group="duplicateTicket" data-value="No">No</button>
+        </div>
+        <div id="duplicateLinkContainer" class="manual-field">
+    <label for="duplicateTicketLink">
+        Duplicate ticket link
+    </label>
+
+    <div class="duplicate-link-row">
+        <input
+            type="text"
+            id="duplicateTicketLink"
+            placeholder="Paste duplicate ticket link..."
+        />
+
+        <button
+            type="button"
+            id="clearDuplicateLink"
+            class="clear-button"
+            title="Clear link"
+        >
+            Clear
+        </button>
+    </div>
+</div>
+    </section>
+
+    <!-- Proof Type -->
+    <section>
+        <label>Proof type</label>
+
+        <div class="options">
+            <button class="option selected" data-group="proofType" data-value="Chat">Chat</button>
+            <button class="option" data-group="proofType" data-value="Call">Call</button>
+            <button class="option" data-group="proofType" data-value="Message">Message</button>
+            <button class="option" data-group="proofType" data-value="Screenshot">Screenshot</button>
+            <button class="option" data-group="proofType" data-value="N/A">N/A</button>
+            <button class="option" data-group="proofType" data-value="No proof">No proof</button>
+            <button class="option" data-group="proofType" data-value="Other">Other</button>
+        </div>
+
+        <input
+            type="text"
+            class="manual-input"
+            id="proofOther"
+            placeholder="Enter proof type..."
+        >
+    </section>
+
+    <!-- Track Check -->
+    <section>
+        <label>Track check</label>
+
+        <div class="options track-options">
+
+            <button class="option selected"
+                    data-group="trackCheck"
+                    data-value="Was at Point A">
+                Was at Point A
+            </button>
+
+            <button class="option"
+                    data-group="trackCheck"
+                    data-value="Was not at Point A">
+                Was not at Point A
+            </button>
+
+            <button class="option"
+                    data-group="trackCheck"
+                    data-value="Going in the wrong direction">
+                Wrong direction
+            </button>
+
+            <button class="option"
+                    data-group="trackCheck"
+                    data-value="Did not move">
+                Did not move
+            </button>
+
+            <button class="option"
+                    data-group="trackCheck"
+                    data-value="Needed to make a U-turn">
+                U-turn
+            </button>
+
+            <button class="option"
+                    data-group="trackCheck"
+                    data-value="Waiting status activated far from Point A">
+                Waiting far from Point A
+            </button>
+
+            <button class="option"
+                    data-group="trackCheck"
+                    data-value="N/A">
+                N/A
+            </button>
+
+            <button class="option"
+                    data-group="trackCheck"
+                    data-value="Other">
+                Other
+            </button>
+
+        </div>
+
+        <input
+            type="text"
+            class="manual-input"
+            id="trackOther"
+            placeholder="Enter track check..."
+        >
+    </section>
+
+    <!-- Reason -->
+    <section>
+        <label>Reason for lost points</label>
+
+        <div class="options">
+            <button class="option selected"
+                    data-group="reason"
+                    data-value="Skipping">
+                Skipping
+            </button>
+
+            <button class="option"
+                    data-group="reason"
+                    data-value="Driver cancellation">
+                Driver cancellation
+            </button>
+
+            <button class="option"
+                    data-group="reason"
+                    data-value="Forced cancellation">
+                Forced cancellation
+            </button>
+
+            <button class="option"
+                    data-group="reason"
+                    data-value="Mayak Rating">
+                Mayak Rating
+            </button>
+
+            <button class="option"
+                    data-group="reason"
+                    data-value="N/A">
+                N/A
+            </button>
+
+            <button class="option"
+                    data-group="reason"
+                    data-value="Other">
+                Other
+            </button>
+        </div>
+
+        <input
+            type="text"
+            class="manual-input"
+            id="reasonOther"
+            placeholder="Enter reason..."
+        >
+    </section>
+
+    <!-- Decision -->
+    <section>
+        <label>Decision</label>
+
+        <div class="options two">
+            <button class="option selected"
+                    data-group="decision"
+                    data-value="restore">
+                Restore
+            </button>
+
+            <button class="option"
+                    data-group="decision"
+                    data-value="do_not_restore">
+                Do not restore
+            </button>
+
+            <button class="option"
+                    data-group="decision"
+                    data-value="no_points_deducted">
+                No points deducted
+            </button>
+        </div>
+    </section>
+
+    <!-- Points -->
+    <section id="pointsSection">
+        <label>Points to restore</label>
+
+        <div class="options points">
+            <button class="option selected" data-group="points" data-value="2">2</button>
+            <button class="option" data-group="points" data-value="4">4</button>
+            <button class="option" data-group="points" data-value="5">5</button>
+            <button class="option" data-group="points" data-value="6">6</button>
+            <button class="option" data-group="points" data-value="10">10</button>
+            <button class="option" data-group="points" data-value="12">12</button>
+            <button class="option" data-group="points" data-value="20">20</button>
+        </div>
+    </section>
+
+    <button id="generateButton">
+        Generate & Copy
+    </button>
+
+    <div id="status"></div>
+
+</div>
+
+<script src="popup.js"></script>
+
+</body>
+</html>

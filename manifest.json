@@ -1,0 +1,13 @@
+{
+    "manifest_version": 3,
+    "name": "Point Refund Comment Generator",
+    "version": "1.0.0",
+    "description": "Generate internal comments for partial point refund cases.",
+    "permissions": [
+        "storage"
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "Point Refund"
+    }
+}
