@@ -1,79 +1,89 @@
-const selections = {
+// ==================================================
+// POINT REFUND TOOL - GITHUB PAGES VERSION
+// ==================================================
+
+const STORAGE_KEY = "pointRefundSelections";
+
+
+// ==================================================
+// DEFAULT SELECTIONS
+// ==================================================
+
+const defaultSelections = {
     pointsLost: "Yes",
     duplicateTicket: "No",
     proofType: "Chat",
     trackCheck: "Was at Point A",
     reason: "Skipping",
     decision: "restore",
-    points: "2"
+    points: "2",
+
+    proofOther: "",
+    trackOther: "",
+    reasonOther: "",
+    duplicateTicketLink: ""
 };
 
-const STORAGE_KEY = "pointRefundSelections";
-
 
 // ==================================================
-// LOAD SAVED SELECTIONS
+// LOAD SAVED DATA
 // ==================================================
 
-chrome.storage.local.get(STORAGE_KEY, (result) => {
+let selections = loadSelections();
 
-    const saved = result[STORAGE_KEY];
 
-    if (saved) {
+function loadSelections() {
 
-        Object.assign(selections, saved);
+    try {
 
-        // Restore text fields
-        document.getElementById("proofOther").value =
-            saved.proofOther || "";
+        const saved =
+            localStorage.getItem(STORAGE_KEY);
 
-        document.getElementById("trackOther").value =
-            saved.trackOther || "";
+        if (saved) {
 
-        document.getElementById("reasonOther").value =
-            saved.reasonOther || "";
+            return {
+                ...defaultSelections,
+                ...JSON.parse(saved)
+            };
 
-        document.getElementById("duplicateTicketLink").value =
-            saved.duplicateTicketLink || "";
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Could not load saved selections:",
+            error
+        );
+
     }
 
-    applySelectionsToButtons();
-
-    updateOtherInputs();
-
-    updateDuplicateTicketField();
-
-    updatePointsVisibility();
-});
+    return {
+        ...defaultSelections
+    };
+}
 
 
 // ==================================================
-// SAVE SELECTIONS
+// SAVE DATA
 // ==================================================
 
 function saveSelections() {
 
-    chrome.storage.local.set({
+    try {
 
-        [STORAGE_KEY]: {
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(selections)
+        );
 
-            ...selections,
+    } catch (error) {
 
-            proofOther:
-                document.getElementById("proofOther").value,
+        console.error(
+            "Could not save selections:",
+            error
+        );
 
-            trackOther:
-                document.getElementById("trackOther").value,
-
-            reasonOther:
-                document.getElementById("reasonOther").value,
-
-            duplicateTicketLink:
-                document.getElementById(
-                    "duplicateTicketLink"
-                ).value
-        }
-    });
+    }
 }
 
 
@@ -97,7 +107,234 @@ function applySelectionsToButtons() {
                 "selected",
                 selections[group] === value
             );
+
         });
+}
+
+
+// ==================================================
+// RESTORE TEXT FIELDS
+// ==================================================
+
+function restoreTextFields() {
+
+    const proofOther =
+        document.getElementById("proofOther");
+
+    const trackOther =
+        document.getElementById("trackOther");
+
+    const reasonOther =
+        document.getElementById("reasonOther");
+
+    const duplicateTicketLink =
+        document.getElementById(
+            "duplicateTicketLink"
+        );
+
+
+    if (proofOther) {
+
+        proofOther.value =
+            selections.proofOther || "";
+
+    }
+
+
+    if (trackOther) {
+
+        trackOther.value =
+            selections.trackOther || "";
+
+    }
+
+
+    if (reasonOther) {
+
+        reasonOther.value =
+            selections.reasonOther || "";
+
+    }
+
+
+    if (duplicateTicketLink) {
+
+        duplicateTicketLink.value =
+            selections.duplicateTicketLink || "";
+
+    }
+}
+
+
+// ==================================================
+// OTHER INPUT VISIBILITY
+// ==================================================
+
+function updateOtherInputs() {
+
+    const proofInput =
+        document.getElementById("proofOther");
+
+    const trackInput =
+        document.getElementById("trackOther");
+
+    const reasonInput =
+        document.getElementById("reasonOther");
+
+
+    if (proofInput) {
+
+        proofInput.classList.toggle(
+            "visible",
+            selections.proofType === "Other"
+        );
+
+    }
+
+
+    if (trackInput) {
+
+        trackInput.classList.toggle(
+            "visible",
+            selections.trackCheck === "Other"
+        );
+
+    }
+
+
+    if (reasonInput) {
+
+        reasonInput.classList.toggle(
+            "visible",
+            selections.reason === "Other"
+        );
+
+    }
+}
+
+
+// ==================================================
+// DUPLICATE TICKET LINK
+// ==================================================
+
+function updateDuplicateTicketField() {
+
+    const container =
+        document.getElementById(
+            "duplicateLinkContainer"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    if (
+        selections.duplicateTicket === "Yes"
+    ) {
+
+        container.classList.add("visible");
+
+    } else {
+
+        container.classList.remove("visible");
+
+    }
+}
+
+
+// ==================================================
+// POINTS VISIBILITY
+// ==================================================
+
+function updatePointsVisibility() {
+
+    const pointsSection =
+        document.getElementById(
+            "pointsSection"
+        );
+
+
+    if (!pointsSection) {
+        return;
+    }
+
+
+    if (
+        selections.pointsLost === "No" ||
+        selections.decision !== "restore"
+    ) {
+
+        pointsSection.style.display =
+            "none";
+
+    } else {
+
+        pointsSection.style.display =
+            "block";
+
+    }
+}
+
+
+// ==================================================
+// POINTS LOST = NO
+// ==================================================
+
+function selectNoPointsLost() {
+
+    selections.pointsLost = "No";
+
+    selections.proofType = "N/A";
+
+    selections.trackCheck = "N/A";
+
+    selections.reason = "N/A";
+
+    selections.decision =
+        "no_points_deducted";
+
+
+    applySelectionsToButtons();
+
+    updateOtherInputs();
+
+    updateDuplicateTicketField();
+
+    updatePointsVisibility();
+
+    saveSelections();
+}
+
+
+// ==================================================
+// POINTS LOST = YES
+// ==================================================
+
+function selectPointsLost() {
+
+    selections.pointsLost = "Yes";
+
+    selections.proofType = "Chat";
+
+    selections.trackCheck =
+        "Was at Point A";
+
+    selections.reason = "Skipping";
+
+    selections.decision = "restore";
+
+
+    applySelectionsToButtons();
+
+    updateOtherInputs();
+
+    updateDuplicateTicketField();
+
+    updatePointsVisibility();
+
+    saveSelections();
 }
 
 
@@ -120,89 +357,39 @@ document
                     button.dataset.value;
 
 
-                // ======================================
-                // POINTS LOST → NO
-                // ======================================
+                // ==========================================
+                // POINTS LOST
+                // ==========================================
 
                 if (
-                    group === "pointsLost" &&
-                    value === "No"
+                    group === "pointsLost"
                 ) {
 
-                    selections.pointsLost =
-                        "No";
+                    if (value === "No") {
 
-                    selections.proofType =
-                        "N/A";
+                        selectNoPointsLost();
 
-                    selections.trackCheck =
-                        "N/A";
+                    } else {
 
-                    selections.reason =
-                        "N/A";
+                        selectPointsLost();
 
-                    selections.decision =
-                        "no_points_deducted";
-
-
-                    applySelectionsToButtons();
-
-                    updateOtherInputs();
-
-                    updatePointsVisibility();
-
-                    saveSelections();
+                    }
 
                     return;
                 }
 
 
-                // ======================================
-                // POINTS LOST → YES
-                // ======================================
-
-                if (
-                    group === "pointsLost" &&
-                    value === "Yes"
-                ) {
-
-                    selections.pointsLost =
-                        "Yes";
-
-                    selections.proofType =
-                        "Chat";
-
-                    selections.trackCheck =
-                        "Was at Point A";
-
-                    selections.reason =
-                        "Skipping";
-
-                    selections.decision =
-                        "restore";
-
-
-                    applySelectionsToButtons();
-
-                    updateOtherInputs();
-
-                    updatePointsVisibility();
-
-                    saveSelections();
-
-                    return;
-                }
-
-
-                // ======================================
-                // NORMAL OPTION
-                // ======================================
+                // ==========================================
+                // NORMAL SELECTION
+                // ==========================================
 
                 selections[group] =
                     value;
 
 
-                // Remove selection from same group
+                // Remove selected state
+                // from the same group
+
                 document
                     .querySelectorAll(
                         `[data-group="${group}"]`
@@ -217,33 +404,44 @@ document
 
 
                 // Select clicked button
+
                 button.classList.add(
                     "selected"
                 );
 
 
-                // Duplicate ticket field
+                // ==========================================
+                // DUPLICATE TICKET
+                // ==========================================
+
                 if (
                     group ===
                     "duplicateTicket"
                 ) {
 
                     updateDuplicateTicketField();
+
                 }
 
 
-                // Other fields
-                updateOtherInputs();
+                // ==========================================
+                // DECISION
+                // ==========================================
 
-
-                // Points visibility
                 if (
-                    group ===
-                    "decision"
+                    group === "decision"
                 ) {
 
                     updatePointsVisibility();
+
                 }
+
+
+                // ==========================================
+                // OTHER
+                // ==========================================
+
+                updateOtherInputs();
 
 
                 saveSelections();
@@ -252,110 +450,6 @@ document
         );
 
     });
-
-
-// ==================================================
-// DUPLICATE TICKET LINK FIELD
-// ==================================================
-
-function updateDuplicateTicketField() {
-
-    const container =
-        document.getElementById(
-            "duplicateLinkContainer"
-        );
-
-
-    if (
-        selections.duplicateTicket ===
-        "Yes"
-    ) {
-
-        container.classList.add(
-            "visible"
-        );
-
-    } else {
-
-        container.classList.remove(
-            "visible"
-        );
-    }
-}
-
-
-// ==================================================
-// OTHER INPUT FIELDS
-// ==================================================
-
-function updateOtherInputs() {
-
-    const proofInput =
-        document.getElementById(
-            "proofOther"
-        );
-
-    const trackInput =
-        document.getElementById(
-            "trackOther"
-        );
-
-    const reasonInput =
-        document.getElementById(
-            "reasonOther"
-        );
-
-
-    proofInput.classList.toggle(
-        "visible",
-        selections.proofType ===
-            "Other"
-    );
-
-
-    trackInput.classList.toggle(
-        "visible",
-        selections.trackCheck ===
-            "Other"
-    );
-
-
-    reasonInput.classList.toggle(
-        "visible",
-        selections.reason ===
-            "Other"
-    );
-}
-
-
-// ==================================================
-// POINTS VISIBILITY
-// ==================================================
-
-function updatePointsVisibility() {
-
-    const pointsSection =
-        document.getElementById(
-            "pointsSection"
-        );
-
-
-    if (
-        selections.pointsLost ===
-            "No" ||
-        selections.decision !==
-            "restore"
-    ) {
-
-        pointsSection.style.display =
-            "none";
-
-    } else {
-
-        pointsSection.style.display =
-            "block";
-    }
-}
 
 
 // ==================================================
@@ -368,17 +462,22 @@ function getFinalValue(
 ) {
 
     if (
-        selections[group] ===
-        "Other"
+        selections[group] === "Other"
     ) {
 
+        const input =
+            document.getElementById(
+                inputId
+            );
+
+
+        if (!input) {
+            return "Other";
+        }
+
+
         const value =
-            document
-                .getElementById(
-                    inputId
-                )
-                .value
-                .trim();
+            input.value.trim();
 
 
         return value || "Other";
@@ -390,124 +489,198 @@ function getFinalValue(
 
 
 // ==================================================
-// GENERATE & COPY
+// GENERATE COMMENT
 // ==================================================
 
-document
-    .getElementById(
-        "generateButton"
-    )
-    .addEventListener(
-        "click",
-        async () => {
+function generateComment() {
 
-            const proofType =
-                getFinalValue(
-                    "proofType",
-                    "proofOther"
-                );
+    const proofType =
+        getFinalValue(
+            "proofType",
+            "proofOther"
+        );
 
 
-            const trackCheck =
-                getFinalValue(
-                    "trackCheck",
-                    "trackOther"
-                );
+    const trackCheck =
+        getFinalValue(
+            "trackCheck",
+            "trackOther"
+        );
 
 
-            const reason =
-                getFinalValue(
-                    "reason",
-                    "reasonOther"
-                );
+    const reason =
+        getFinalValue(
+            "reason",
+            "reasonOther"
+        );
 
 
-            const duplicateTicketLink =
-                document
-                    .getElementById(
-                        "duplicateTicketLink"
-                    )
-                    .value
-                    .trim();
+    const duplicateTicketLink =
+        document
+            .getElementById(
+                "duplicateTicketLink"
+            )
+            ?.value
+            .trim() || "";
 
 
-            // ==========================================
-            // DECISION TEXT
-            // ==========================================
+    // ==========================================
+    // DECISION
+    // ==========================================
 
-            let decisionText;
-
-
-            if (
-                selections.decision ===
-                "restore"
-            ) {
-
-                decisionText =
-                    `Restore ${selections.points} points`;
-
-            } else if (
-                selections.decision ===
-                "no_points_deducted"
-            ) {
-
-                decisionText =
-                    "No points deducted";
-
-            } else {
-
-                decisionText =
-                    "Do not restore";
-            }
+    let decisionText;
 
 
-            // ==========================================
-            // BUILD COMMENT
-            // ==========================================
+    if (
+        selections.decision ===
+        "restore"
+    ) {
 
-            let comment =
+        decisionText =
+            `Restore ${selections.points} points`;
+
+    } else if (
+        selections.decision ===
+        "no_points_deducted"
+    ) {
+
+        decisionText =
+            "No points deducted";
+
+    } else {
+
+        decisionText =
+            "Do not restore";
+
+    }
+
+
+    // ==========================================
+    // COMMENT
+    // ==========================================
+
+    let comment =
 `Points lost: ${selections.pointsLost}
 Duplicate ticket: ${selections.duplicateTicket}`;
 
 
-            // Add duplicate link only when applicable
-            if (
-                selections.duplicateTicket ===
-                    "Yes" &&
-                duplicateTicketLink
-            ) {
+    // Add duplicate link
+    // only when duplicate = Yes
 
-                comment +=
-                    `\nDuplicate ticket link: ${duplicateTicketLink}`;
-            }
+    if (
+        selections.duplicateTicket === "Yes"
+        && duplicateTicketLink
+    ) {
+
+        comment +=
+            `\nDuplicate ticket link: ${duplicateTicketLink}`;
+
+    }
 
 
-            comment +=
+    comment +=
 `\nProof type: ${proofType}
 Track check: ${trackCheck}
 Reason for lost points: ${reason}
 Decision: ${decisionText}`;
 
 
-            // ==========================================
-            // COPY
-            // ==========================================
+    return comment;
+}
 
-            try {
 
-                await navigator.clipboard.writeText(
-                    comment
+// ==================================================
+// COPY TO CLIPBOARD
+// ==================================================
+
+async function copyComment() {
+
+    const comment =
+        generateComment();
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            comment
+        );
+
+
+        const status =
+            document.getElementById(
+                "status"
+            );
+
+
+        if (status) {
+
+            status.textContent =
+                "✓ Copied to clipboard";
+
+
+            setTimeout(
+                () => {
+
+                    status.textContent =
+                        "";
+
+                },
+                2000
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Clipboard error:",
+            error
+        );
+
+
+        // Fallback for browsers
+        // that block navigator.clipboard
+
+        const textarea =
+            document.createElement(
+                "textarea"
+            );
+
+
+        textarea.value =
+            comment;
+
+
+        textarea.style.position =
+            "fixed";
+
+        textarea.style.opacity =
+            "0";
+
+
+        document.body.appendChild(
+            textarea
+        );
+
+
+        textarea.select();
+
+
+        try {
+
+            document.execCommand(
+                "copy"
+            );
+
+
+            const status =
+                document.getElementById(
+                    "status"
                 );
 
 
-                saveSelections();
-
-
-                const status =
-                    document.getElementById(
-                        "status"
-                    );
-
+            if (status) {
 
                 status.textContent =
                     "✓ Copied to clipboard";
@@ -523,78 +696,207 @@ Decision: ${decisionText}`;
                     2000
                 );
 
+            }
 
-            } catch (error) {
+        } catch (fallbackError) {
 
-                console.error(
-                    error
+            console.error(
+                "Copy failed:",
+                fallbackError
+            );
+
+
+            const status =
+                document.getElementById(
+                    "status"
                 );
 
 
-                document.getElementById(
-                    "status"
-                ).textContent =
+            if (status) {
+
+                status.textContent =
                     "Could not copy comment.";
+
+            }
+
+        }
+
+
+        document.body.removeChild(
+            textarea
+        );
+
+    }
+}
+
+
+// ==================================================
+// GENERATE BUTTON
+// ==================================================
+
+const generateButton =
+    document.getElementById(
+        "generateButton"
+    );
+
+
+if (generateButton) {
+
+    generateButton.addEventListener(
+        "click",
+        copyComment
+    );
+
+}
+
+
+// ==================================================
+// TEXT INPUTS - SAVE WHILE TYPING
+// ==================================================
+
+const proofOther =
+    document.getElementById(
+        "proofOther"
+    );
+
+
+if (proofOther) {
+
+    proofOther.addEventListener(
+        "input",
+        () => {
+
+            selections.proofOther =
+                proofOther.value;
+
+            saveSelections();
+
+        }
+    );
+
+}
+
+
+const trackOther =
+    document.getElementById(
+        "trackOther"
+    );
+
+
+if (trackOther) {
+
+    trackOther.addEventListener(
+        "input",
+        () => {
+
+            selections.trackOther =
+                trackOther.value;
+
+            saveSelections();
+
+        }
+    );
+
+}
+
+
+const reasonOther =
+    document.getElementById(
+        "reasonOther"
+    );
+
+
+if (reasonOther) {
+
+    reasonOther.addEventListener(
+        "input",
+        () => {
+
+            selections.reasonOther =
+                reasonOther.value;
+
+            saveSelections();
+
+        }
+    );
+
+}
+
+
+const duplicateTicketLink =
+    document.getElementById(
+        "duplicateTicketLink"
+    );
+
+
+if (duplicateTicketLink) {
+
+    duplicateTicketLink.addEventListener(
+        "input",
+        () => {
+
+            selections.duplicateTicketLink =
+                duplicateTicketLink.value;
+
+            saveSelections();
+
+        }
+    );
+
+}
+
+
+// ==================================================
+// CLEAR DUPLICATE TICKET LINK
+// ==================================================
+
+const clearDuplicateLink =
+    document.getElementById(
+        "clearDuplicateLink"
+    );
+
+
+if (clearDuplicateLink) {
+
+    clearDuplicateLink.addEventListener(
+        "click",
+        () => {
+
+            const input =
+                document.getElementById(
+                    "duplicateTicketLink"
+                );
+
+
+            if (input) {
+
+                input.value = "";
+
+                selections.duplicateTicketLink =
+                    "";
+
+                saveSelections();
+
+                input.focus();
+
             }
 
         }
     );
 
+}
+
 
 // ==================================================
-// SAVE TEXT WHILE TYPING
+// INITIALIZE
 // ==================================================
 
-document
-    .getElementById(
-        "proofOther"
-    )
-    .addEventListener(
-        "input",
-        saveSelections
-    );
+restoreTextFields();
 
+applySelectionsToButtons();
 
-document
-    .getElementById(
-        "trackOther"
-    )
-    .addEventListener(
-        "input",
-        saveSelections
-    );
+updateOtherInputs();
 
+updateDuplicateTicketField();
 
-document
-    .getElementById(
-        "reasonOther"
-    )
-    .addEventListener(
-        "input",
-        saveSelections
-    );
-
-
-document
-    .getElementById(
-        "duplicateTicketLink"
-    )
-    .addEventListener(
-        "input",
-        saveSelections
-    );
-
-document
-    .getElementById("clearDuplicateLink")
-    .addEventListener("click", () => {
-
-        document.getElementById(
-            "duplicateTicketLink"
-        ).value = "";
-
-        saveSelections();
-
-        document.getElementById(
-            "duplicateTicketLink"
-        ).focus();
-    });
+updatePointsVisibility();
